@@ -1,12 +1,86 @@
 @import 'tailwindcss';
 
+/* Match Stitch / tailwind.config darkMode: "class" — dark: only when .dark is present */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-fixed: #d8e3fb;
+  --color-on-secondary-container: #505254;
+  --color-on-secondary: #f9f9fc;
+  --color-on-primary-container: #475266;
+  --color-on-error: #fff7f6;
+  --color-surface-container-low: #f0f4f7;
+  --color-surface-container: #e8eff3;
+  --color-error-container: #fe8983;
+  --color-on-tertiary-fixed-variant: #4d566f;
+  --color-surface-variant: #d9e4ea;
+  --color-surface-tint: #545f73;
+  --color-outline-variant: #a9b4b9;
+  --color-primary-fixed-dim: #cad5ed;
+  --color-on-secondary-fixed: #3e3f42;
+  --color-on-surface: #2a3439;
+  --color-on-primary-fixed-variant: #515c70;
+  --color-surface: #f7f9fb;
+  --color-primary: #545f73;
+  --color-tertiary-fixed: #d0d9f7;
+  --color-error-dim: #4e0309;
+  --color-on-secondary-fixed-variant: #5a5b5e;
+  --color-inverse-primary: #dae6fe;
+  --color-tertiary-fixed-dim: #c2cbe9;
+  --color-on-background: #2a3439;
+  --color-secondary-container: #e2e2e5;
+  --color-on-primary-fixed: #354053;
+  --color-on-tertiary: #f9f8ff;
+  --color-secondary: #5d5f62;
+  --color-tertiary-container: #d0d9f7;
+  --color-primary-container: #d8e3fb;
+  --color-surface-dim: #cfdce3;
+  --color-on-surface-variant: #566166;
+  --color-inverse-on-surface: #9a9d9f;
+  --color-tertiary: #555f78;
+  --color-outline: #717c82;
+  --color-on-tertiary-container: #434c65;
+  --color-secondary-dim: #515356;
+  --color-surface-container-lowest: #ffffff;
+  --color-primary-dim: #485367;
+  --color-secondary-fixed: #e2e2e5;
+  --color-inverse-surface: #0b0f10;
+  --color-on-tertiary-fixed: #303951;
+  --color-surface-bright: #f7f9fb;
+  --color-error: #9f403d;
+  --color-background: #f7f9fb;
+  --color-tertiary-dim: #4a536b;
+  --color-on-primary: #f6f7ff;
+  --color-surface-container-high: #e1e9ee;
+  --color-on-error-container: #752121;
+  --color-surface-container-highest: #d9e4ea;
+  --color-secondary-fixed-dim: #d4d4d7;
+}
+
+html,
+body {
+  background-color: var(--color-surface);
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: 'Inter', sans-serif;
   line-height: 1.5;
 }
 
 #root {
   min-height: 100vh;
-  padding: 2rem;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  vertical-align: middle;
+}
+
+.ghost-border {
+  border: 1px solid rgba(169, 180, 185, 0.15);
 }

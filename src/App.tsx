@@ -1,9 +1,18 @@
+import { AddJobForm } from './components/AddJobForm'
+import { Footer } from './components/Footer'
+import { Header } from './components/Header'
+import { JobList } from './components/JobList'
+
 function App() {
   return (
-    <>
-      <h1>interview-tracker</h1>
-      <p>Edit src/App.tsx and save to test HMR.</p>
-    </>
+    <div className="bg-surface text-on-surface min-h-screen flex flex-col antialiased">
+      <Header />
+      <main className="flex-grow w-full max-w-4xl mx-auto px-6 py-12">
+        <AddJobForm />
+        <JobList />
+      </main>
+      <Footer />
+    </div>
   )
 }
 
