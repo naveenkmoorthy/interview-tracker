@@ -1,13 +1,13 @@
+import type { Job } from '../types/job'
 import { JobListItem, type JobStatus } from './JobListItem'
 
-const SAMPLE_JOBS: { company: string; role: string; status: JobStatus }[] = [
-  { company: 'Linear', role: 'Software Engineer, Product', status: 'Applied' },
-  { company: 'Stripe', role: 'Backend Infrastructure', status: 'Interview' },
-  { company: 'Supabase', role: 'Full Stack Developer', status: 'Offer' },
-  { company: 'Meta', role: 'Product Engineer', status: 'Rejected' },
-]
+type JobListProps = {
+  jobs: Job[]
+  onUpdateStatus: (id: string, status: JobStatus) => void
+  onDelete: (id: string) => void
+}
 
-export function JobList() {
+export function JobList({ jobs, onUpdateStatus, onDelete }: JobListProps) {
   return (
     <section>
       <div className="flex items-center justify-between mb-8">
@@ -16,26 +16,38 @@ export function JobList() {
         </h3>
         <div className="flex gap-2">
           <span className="text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded">
-            6 Total
+            {jobs.length} Total
           </span>
         </div>
       </div>
-      <div className="space-y-4">
-        {SAMPLE_JOBS.map((job) => (
-          <JobListItem key={job.company} {...job} />
-        ))}
-      </div>
-      <div className="mt-12 py-12 text-center border-2 border-dashed border-[#a9b4b9]/15 rounded-xl">
-        <span
-          className="material-symbols-outlined text-outline-variant text-4xl mb-4 block"
-          data-icon="work_outline"
-        >
-          work_outline
-        </span>
-        <p className="text-on-surface-variant text-sm font-medium italic">
-          Showing 4 of 6 active applications
-        </p>
-      </div>
+
+      {jobs.length === 0 ? (
+        <div className="mt-4 py-16 text-center border-2 border-dashed border-outline-variant/15 rounded-xl">
+          <span
+            className="material-symbols-outlined text-outline-variant text-4xl mb-4 block"
+            data-icon="work_outline"
+          >
+            work_outline
+          </span>
+          <p className="text-on-surface-variant text-sm font-medium">
+            No applications yet. Add your first one above.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {jobs.map((job) => (
+            <JobListItem
+              key={job.id}
+              id={job.id}
+              company={job.company}
+              role={job.role}
+              status={job.status}
+              onUpdateStatus={onUpdateStatus}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

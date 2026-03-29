@@ -1,4 +1,9 @@
-export type JobStatus = 'Applied' | 'Interview' | 'Offer' | 'Rejected'
+import { useEffect, useRef, useState } from 'react'
+import type { Job } from '../types/job'
+
+export type JobStatus = Job['status']
+
+const STATUSES: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected']
 
 const statusPresentation: Record<
   JobStatus,
@@ -37,13 +42,37 @@ const statusPresentation: Record<
 }
 
 export type JobListItemProps = {
+  id: string
   company: string
   role: string
   status: JobStatus
+  onUpdateStatus: (id: string, status: JobStatus) => void
+  onDelete: (id: string) => void
 }
 
-export function JobListItem({ company, role, status }: JobListItemProps) {
+export function JobListItem({
+  id,
+  company,
+  role,
+  status,
+  onUpdateStatus,
+  onDelete,
+}: JobListItemProps) {
   const p = statusPresentation[status]
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpen])
+
   return (
     <div className="group bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low">
       <div className="flex items-center gap-6">
@@ -59,14 +88,63 @@ export function JobListItem({ company, role, status }: JobListItemProps) {
       </div>
       <div className="flex items-center gap-4">
         <span className={p.badge}>{status}</span>
-        <button
-          type="button"
-          className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"
-        >
-          <span className="material-symbols-outlined text-xl" data-icon="more_vert">
-            more_vert
-          </span>
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button
+            type="button"
+            className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span className="material-symbols-outlined text-xl" data-icon="more_vert">
+              more_vert
+            </span>
+          </button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-surface-container-lowest/90 backdrop-blur-[20px] rounded-xl ghost-border shadow-[0_1px_2px_rgba(42,52,57,0.04),0_4px_12px_rgba(42,52,57,0.08)] py-1">
+              <div className="px-3 py-2">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">
+                  Move to
+                </span>
+              </div>
+              {STATUSES.filter((s) => s !== status).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-2"
+                  onClick={() => {
+                    onUpdateStatus(id, s)
+                    setMenuOpen(false)
+                  }}
+                >
+                  <span
+                    className="material-symbols-outlined text-base text-on-surface-variant"
+                    data-icon={statusPresentation[s].icon}
+                  >
+                    {statusPresentation[s].icon}
+                  </span>
+                  {s}
+                </button>
+              ))}
+              <div className="border-t border-outline-variant/15 my-1" />
+              <button
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/10 transition-colors flex items-center gap-2"
+                onClick={() => {
+                  onDelete(id)
+                  setMenuOpen(false)
+                }}
+              >
+                <span
+                  className="material-symbols-outlined text-base"
+                  data-icon="delete"
+                >
+                  delete
+                </span>
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
