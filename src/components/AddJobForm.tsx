@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import type { Job } from '../types/job'
+import { JOB_STATUSES, type Job } from '../types/job'
 
 type AddJobFormProps = {
   onAdd: (company: string, role: string, status: Job['status']) => void
 }
-
-const STATUSES: Job['status'][] = ['Applied', 'Interview', 'Offer', 'Rejected']
 
 export function AddJobForm({ onAdd }: AddJobFormProps) {
   const [company, setCompany] = useState('')
@@ -83,7 +81,7 @@ export function AddJobForm({ onAdd }: AddJobFormProps) {
               value={status}
               onChange={(e) => setStatus(e.target.value as Job['status'])}
             >
-              {STATUSES.map((s) => (
+              {JOB_STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>

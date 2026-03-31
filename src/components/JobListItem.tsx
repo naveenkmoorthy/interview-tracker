@@ -1,9 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Job } from '../types/job'
-
-export type JobStatus = Job['status']
-
-const STATUSES: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected']
+import { JOB_STATUSES, type JobStatus } from '../types/job'
 
 const statusPresentation: Record<
   JobStatus,
@@ -106,7 +102,7 @@ export function JobListItem({
                   Move to
                 </span>
               </div>
-              {STATUSES.filter((s) => s !== status).map((s) => (
+              {JOB_STATUSES.filter((s) => s !== status).map((s) => (
                 <button
                   key={s}
                   type="button"
