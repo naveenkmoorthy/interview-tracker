@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Job } from '../types/job'
-import { seedJobs } from '../data/jobs'
 
 const STORAGE_KEY = 'interview-tracker-jobs'
 
@@ -34,7 +33,7 @@ function loadJobs(): Job[] {
   } catch {
     /* corrupted data — fall through to seed */
   }
-  return seedJobs
+  return []
 }
 
 export function useJobs() {

@@ -25,27 +25,27 @@ const statusStyle: Record<JobStatus, { icon: string; bg: string; text: string }>
   },
 }
 
+type SortOrder = 'newest' | 'oldest'
+
 type StatsBarProps = {
   jobs: Job[]
   activeFilter: StatusFilter
   onFilterChange: (filter: StatusFilter) => void
+  sortOrder: SortOrder
+  onSortChange: (order: SortOrder) => void
 }
 
-export function StatsBar({ jobs, activeFilter, onFilterChange }: StatsBarProps) {
+export function StatsBar({ jobs, activeFilter, onFilterChange, sortOrder, onSortChange }: StatsBarProps) {
   const total = jobs.length
   const counts = Object.fromEntries(
     JOB_STATUSES.map((s) => [s, jobs.filter((j) => j.status === s).length]),
   ) as Record<JobStatus, number>
-
-  const filteredCount =
-    activeFilter === 'all' ? total : counts[activeFilter]
 
   function toggle(filter: StatusFilter) {
     onFilterChange(activeFilter === filter ? 'all' : filter)
   }
 
   const isAllActive = activeFilter === 'all'
-  const filterActive = activeFilter !== 'all'
 
   return (
     <section className="py-8">
@@ -93,11 +93,21 @@ export function StatsBar({ jobs, activeFilter, onFilterChange }: StatsBarProps) 
           )
         })}
 
-        {filterActive && (
-          <span className="ml-auto text-xs font-medium text-on-surface-variant bg-surface-container px-2 py-1 rounded">
-            {filteredCount} shown of {total}
+        <button
+          type="button"
+          onClick={() => onSortChange(sortOrder === 'newest' ? 'oldest' : 'newest')}
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container transition-all ring-2 ring-primary shadow-sm"
+        >
+          <span
+            className="material-symbols-outlined text-base text-on-surface-variant"
+            data-icon={sortOrder === 'newest' ? 'arrow_downward' : 'arrow_upward'}
+          >
+            {sortOrder === 'newest' ? 'arrow_downward' : 'arrow_upward'}
           </span>
-        )}
+          <span className="text-xs font-medium text-on-surface">
+            {sortOrder === 'newest' ? 'Newest first' : 'Oldest first'}
+          </span>
+        </button>
       </div>
     </section>
   )

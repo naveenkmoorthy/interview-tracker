@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { JOB_STATUSES, type Job } from '../types/job'
+import type { Job } from '../types/job'
 
 type AddJobFormProps = {
   onAdd: (company: string, role: string, status: Job['status']) => void
@@ -8,17 +8,15 @@ type AddJobFormProps = {
 export function AddJobForm({ onAdd }: AddJobFormProps) {
   const [company, setCompany] = useState('')
   const [role, setRole] = useState('')
-  const [status, setStatus] = useState<Job['status']>('Applied')
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const trimmedCompany = company.trim()
     const trimmedRole = role.trim()
     if (!trimmedCompany || !trimmedRole) return
-    onAdd(trimmedCompany, trimmedRole, status)
+    onAdd(trimmedCompany, trimmedRole, 'Applied')
     setCompany('')
     setRole('')
-    setStatus('Applied')
   }
 
   return (
@@ -33,7 +31,7 @@ export function AddJobForm({ onAdd }: AddJobFormProps) {
           </p>
         </div>
         <form
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
           onSubmit={handleSubmit}
         >
           <div className="md:col-span-1">
@@ -67,26 +65,6 @@ export function AddJobForm({ onAdd }: AddJobFormProps) {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             />
-          </div>
-          <div className="md:col-span-1">
-            <label
-              className="block text-xs font-semibold tracking-wide text-on-surface mb-2 uppercase"
-              htmlFor="status"
-            >
-              Status
-            </label>
-            <select
-              className="w-full bg-surface-container-low border-none rounded-md px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all text-on-surface"
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value as Job['status'])}
-            >
-              {JOB_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
           </div>
           <div className="md:col-span-1">
             <button

@@ -3,10 +3,12 @@ import type { Job, JobStatus } from '../types/job'
 import { JobListItem } from './JobListItem'
 
 type StatusFilter = 'all' | JobStatus
+type SortOrder = 'newest' | 'oldest'
 
 type JobListProps = {
   jobs: Job[]
   statusFilter: StatusFilter
+  sortOrder: SortOrder
   onUpdateStatus: (id: string, status: JobStatus) => void
   onDelete: (id: string) => void
 }
@@ -17,19 +19,20 @@ function createdAtMs(iso: string | undefined): number {
   return Number.isFinite(t) ? t : 0
 }
 
-export function JobList({ jobs, statusFilter, onUpdateStatus, onDelete }: JobListProps) {
+export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onDelete }: JobListProps) {
   const displayJobs = useMemo(() => {
     const filtered =
       statusFilter === 'all'
         ? jobs.slice()
         : jobs.filter((j) => j.status === statusFilter)
+    const dir = sortOrder === 'newest' ? 1 : -1
     filtered.sort((a, b) => {
       const byTime = createdAtMs(b.createdAt) - createdAtMs(a.createdAt)
-      if (byTime !== 0) return byTime
-      return b.id.localeCompare(a.id)
+      if (byTime !== 0) return byTime * dir
+      return b.id.localeCompare(a.id) * dir
     })
     return filtered
-  }, [jobs, statusFilter])
+  }, [jobs, statusFilter, sortOrder])
 
   return (
     <section>
@@ -42,7 +45,7 @@ export function JobList({ jobs, statusFilter, onUpdateStatus, onDelete }: JobLis
             work_outline
           </span>
           <p className="text-on-surface-variant text-sm font-medium">
-            No applications yet. Add your first one above.
+            No entries yet &mdash; add your first application above.
           </p>
         </div>
       ) : displayJobs.length === 0 ? (

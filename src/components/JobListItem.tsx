@@ -126,6 +126,7 @@ export function JobListItem({
                 type="button"
                 className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/10 transition-colors flex items-center gap-2"
                 onClick={() => {
+                  if (!window.confirm(`Delete "${company}" application?`)) return
                   onDelete(id)
                   setMenuOpen(false)
                 }}

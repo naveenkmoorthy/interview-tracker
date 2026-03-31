@@ -8,10 +8,12 @@ import { useJobs } from './hooks/useJobs'
 import type { JobStatus } from './types/job'
 
 type StatusFilter = 'all' | JobStatus
+type SortOrder = 'newest' | 'oldest'
 
 function App() {
   const { jobs, addJob, updateJobStatus, deleteJob } = useJobs()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
 
   return (
     <div className="bg-surface text-on-surface min-h-screen flex flex-col antialiased">
@@ -22,10 +24,13 @@ function App() {
           jobs={jobs}
           activeFilter={statusFilter}
           onFilterChange={setStatusFilter}
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
         />
         <JobList
           jobs={jobs}
           statusFilter={statusFilter}
+          sortOrder={sortOrder}
           onUpdateStatus={updateJobStatus}
           onDelete={deleteJob}
         />
