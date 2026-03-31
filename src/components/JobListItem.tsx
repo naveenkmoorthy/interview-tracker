@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { JOB_STATUSES, type JobStatus } from '../types/job'
+import { ConfirmModal } from './ConfirmModal'
 
 const statusPresentation: Record<
   JobStatus,
@@ -56,6 +57,7 @@ export function JobListItem({
 }: JobListItemProps) {
   const p = statusPresentation[status]
   const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -126,8 +128,7 @@ export function JobListItem({
                 type="button"
                 className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/10 transition-colors flex items-center gap-2"
                 onClick={() => {
-                  if (!window.confirm(`Delete "${company}" application?`)) return
-                  onDelete(id)
+                  setConfirmOpen(true)
                   setMenuOpen(false)
                 }}
               >
@@ -143,6 +144,15 @@ export function JobListItem({
           )}
         </div>
       </div>
+      {confirmOpen && (
+        <ConfirmModal
+          title="Delete application?"
+          description={`"${company} \u2014 ${role}" will be permanently removed.`}
+          confirmLabel="Delete"
+          onConfirm={() => { onDelete(id); setConfirmOpen(false) }}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      )}
     </div>
   )
 }
