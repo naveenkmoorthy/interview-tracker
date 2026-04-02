@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { JOB_STATUSES, type JobStatus } from '../types/job'
+import { getJobAttention } from '../utils/jobAttention'
 import { ConfirmModal } from './ConfirmModal'
 
 const statusPresentation: Record<
@@ -43,6 +44,10 @@ export type JobListItemProps = {
   company: string
   role: string
   status: JobStatus
+  createdAt: string
+  updatedAt?: string
+  /** Wall-clock time for staleness; must change over time (see JobList). */
+  nowMs: number
   onUpdateStatus: (id: string, status: JobStatus) => void
   onDelete: (id: string) => void
 }
@@ -52,9 +57,24 @@ export function JobListItem({
   company,
   role,
   status,
+  createdAt,
+  updatedAt,
+  nowMs,
   onUpdateStatus,
   onDelete,
 }: JobListItemProps) {
+  const attention = getJobAttention(
+    {
+      id,
+      company,
+      role,
+      status,
+      createdAt,
+      updatedAt,
+    },
+    nowMs,
+  )
+
   const p = statusPresentation[status]
   const [menuOpen, setMenuOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -71,17 +91,56 @@ export function JobListItem({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [menuOpen])
 
+  const rowClass =
+    attention.needsAttention
+      ? 'border-l-4 border-amber-500/85 bg-amber-50/35 dark:bg-amber-950/20'
+      : ''
+
+  const tooltipPanel =
+    attention.needsAttention ? (
+      <>
+        <span id={`job-attn-${id}`} className="sr-only">
+          {attention.tooltipText}
+        </span>
+        <div
+          className="pointer-events-none absolute left-0 top-full z-50 mt-1 w-max max-w-[min(280px,calc(100vw-3rem))] rounded-lg bg-surface-container-highest px-3 py-2 text-left text-xs leading-snug text-on-surface shadow-[0_4px_16px_rgba(42,52,57,0.12)] ghost-border opacity-0 invisible transition-[opacity,visibility] duration-150 group-hover/row:opacity-100 group-hover/row:visible group-focus-within/ico:opacity-100 group-focus-within/ico:visible"
+          aria-hidden
+        >
+          {attention.tooltipText}
+        </div>
+      </>
+    ) : null
+
   return (
-    <div className="group bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low">
-      <div className="flex items-center gap-6">
+    <div
+      className={`group/row relative bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low ${rowClass}`}
+    >
+      <div className="flex items-center gap-6 min-w-0">
         <div className={p.iconWrap}>
           <span className={p.iconClass} data-icon={p.icon}>
             {p.icon}
           </span>
         </div>
-        <div>
-          <h4 className="font-semibold text-on-surface leading-tight">{company}</h4>
-          <p className="text-sm text-on-surface-variant font-medium">{role}</p>
+        <div className="relative min-w-0 flex items-start gap-2">
+          <div className="min-w-0">
+            <h4 className="font-semibold text-on-surface leading-tight">{company}</h4>
+            <p className="text-sm text-on-surface-variant font-medium">{role}</p>
+          </div>
+          {attention.needsAttention && (
+            <div className="group/ico relative shrink-0 pt-0.5">
+              <button
+                type="button"
+                className="rounded p-0.5 text-amber-700 dark:text-amber-400 hover:bg-amber-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+                aria-label="Needs attention"
+                aria-describedby={`job-attn-${id}`}
+              >
+                <span className="material-symbols-outlined text-xl" data-icon="priority_high">
+                  priority_high
+                </span>
+              </button>
+              {tooltipPanel}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-4">

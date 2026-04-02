@@ -7,18 +7,26 @@ const STORAGE_KEY = 'interview-tracker-jobs'
 const LEGACY_CREATED_AT_BASE_MS = Date.UTC(2020, 0, 1)
 
 function normalizeJob(job: Job, index: number): Job {
-  const raw = job.createdAt
+  let createdAt = job.createdAt
   if (
-    typeof raw === 'string' &&
-    raw.length > 0 &&
-    Number.isFinite(Date.parse(raw))
+    typeof createdAt !== 'string' ||
+    createdAt.length === 0 ||
+    !Number.isFinite(Date.parse(createdAt))
   ) {
-    return job
+    createdAt = new Date(LEGACY_CREATED_AT_BASE_MS + index * 1000).toISOString()
   }
-  return {
-    ...job,
-    createdAt: new Date(LEGACY_CREATED_AT_BASE_MS + index * 1000).toISOString(),
+
+  const rawUpdated = job.updatedAt
+  let updatedAt = createdAt
+  if (
+    typeof rawUpdated === 'string' &&
+    rawUpdated.length > 0 &&
+    Number.isFinite(Date.parse(rawUpdated))
+  ) {
+    updatedAt = rawUpdated
   }
+
+  return { ...job, createdAt, updatedAt }
 }
 
 function loadJobs(): Job[] {
@@ -45,12 +53,14 @@ export function useJobs() {
 
   const addJob = useCallback(
     (company: string, role: string, status: Job['status']) => {
+      const now = new Date().toISOString()
       const newJob: Job = {
         id: crypto.randomUUID(),
         company,
         role,
         status,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
       }
       setJobs((prev) => [newJob, ...prev])
     },
@@ -60,7 +70,13 @@ export function useJobs() {
   const updateJobStatus = useCallback(
     (id: string, status: Job['status']) => {
       setJobs((prev) =>
-        prev.map((job) => (job.id === id ? { ...job, status } : job)),
+        prev.map((job) =>
+          job.id !== id
+            ? job
+            : job.status === status
+              ? job
+              : { ...job, status, updatedAt: new Date().toISOString() },
+        ),
       )
     },
     [],

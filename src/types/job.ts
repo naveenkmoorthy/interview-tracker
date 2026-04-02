@@ -14,4 +14,6 @@ export type Job = {
   role: string
   status: JobStatus
   createdAt: string
+  /** Last activity: creation or status change. Omitted in legacy stored rows; treat as createdAt. */
+  updatedAt?: string
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Job, JobStatus } from '../types/job'
 import { JobListItem } from './JobListItem'
 
@@ -19,7 +19,24 @@ function createdAtMs(iso: string | undefined): number {
   return Number.isFinite(t) ? t : 0
 }
 
+const STALENESS_TICK_MS = 60 * 60 * 1000
+
 export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onDelete }: JobListProps) {
+  const [nowMs, setNowMs] = useState(() => Date.now())
+
+  useEffect(() => {
+    const bump = () => setNowMs(Date.now())
+    const intervalId = window.setInterval(bump, STALENESS_TICK_MS)
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') bump()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [])
+
   const displayJobs = useMemo(() => {
     const filtered =
       statusFilter === 'all'
@@ -69,6 +86,9 @@ export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onDelet
               company={job.company}
               role={job.role}
               status={job.status}
+              createdAt={job.createdAt}
+              updatedAt={job.updatedAt}
+              nowMs={nowMs}
               onUpdateStatus={onUpdateStatus}
               onDelete={onDelete}
             />
