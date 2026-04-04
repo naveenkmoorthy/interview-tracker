@@ -46,10 +46,24 @@ export type JobListItemProps = {
   status: JobStatus
   createdAt: string
   updatedAt?: string
+  lastContactedAt?: string
   /** Wall-clock time for staleness; must change over time (see JobList). */
   nowMs: number
   onUpdateStatus: (id: string, status: JobStatus) => void
+  onMarkFollowedUp: (id: string) => void
   onDelete: (id: string) => void
+}
+
+const MS_PER_DAY = 86400000
+
+function relativeContactLabel(lastContactedAt: string | undefined, nowMs: number): string | null {
+  if (!lastContactedAt) return null
+  const ms = Date.parse(lastContactedAt)
+  if (!Number.isFinite(ms)) return null
+  const days = Math.floor((nowMs - ms) / MS_PER_DAY)
+  if (days <= 0) return 'Last contacted today'
+  if (days === 1) return 'Last contacted yesterday'
+  return `Last contacted ${days} days ago`
 }
 
 export function JobListItem({
@@ -59,8 +73,10 @@ export function JobListItem({
   status,
   createdAt,
   updatedAt,
+  lastContactedAt,
   nowMs,
   onUpdateStatus,
+  onMarkFollowedUp,
   onDelete,
 }: JobListItemProps) {
   const attention = getJobAttention(
@@ -71,9 +87,12 @@ export function JobListItem({
       status,
       createdAt,
       updatedAt,
+      lastContactedAt,
     },
     nowMs,
   )
+
+  const contactLabel = relativeContactLabel(lastContactedAt, nowMs)
 
   const p = statusPresentation[status]
   const [menuOpen, setMenuOpen] = useState(false)
@@ -91,29 +110,9 @@ export function JobListItem({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [menuOpen])
 
-  const rowClass =
-    attention.needsAttention
-      ? 'border-l-4 border-amber-500/85 bg-amber-50/35 dark:bg-amber-950/20'
-      : ''
-
-  const tooltipPanel =
-    attention.needsAttention ? (
-      <>
-        <span id={`job-attn-${id}`} className="sr-only">
-          {attention.tooltipText}
-        </span>
-        <div
-          className="pointer-events-none absolute left-0 top-full z-50 mt-1 w-max max-w-[min(280px,calc(100vw-3rem))] rounded-lg bg-surface-container-highest px-3 py-2 text-left text-xs leading-snug text-on-surface shadow-[0_4px_16px_rgba(42,52,57,0.12)] ghost-border opacity-0 invisible transition-[opacity,visibility] duration-150 group-hover/row:opacity-100 group-hover/row:visible group-focus-within/ico:opacity-100 group-focus-within/ico:visible"
-          aria-hidden
-        >
-          {attention.tooltipText}
-        </div>
-      </>
-    ) : null
-
   return (
     <div
-      className={`group/row relative bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low ${rowClass}`}
+      className="group/row relative bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low"
     >
       <div className="flex items-center gap-6 min-w-0">
         <div className={p.iconWrap}>
@@ -121,29 +120,43 @@ export function JobListItem({
             {p.icon}
           </span>
         </div>
-        <div className="relative min-w-0 flex items-start gap-2">
-          <div className="min-w-0">
-            <h4 className="font-semibold text-on-surface leading-tight">{company}</h4>
-            <p className="text-sm text-on-surface-variant font-medium">{role}</p>
-          </div>
-          {attention.needsAttention && (
-            <div className="group/ico relative shrink-0 pt-0.5">
-              <button
-                type="button"
-                className="rounded p-0.5 text-amber-700 dark:text-amber-400 hover:bg-amber-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-                aria-label="Needs attention"
-                aria-describedby={`job-attn-${id}`}
-              >
-                <span className="material-symbols-outlined text-xl" data-icon="priority_high">
-                  priority_high
+        <div className="min-w-0">
+          <h4 className="font-semibold text-on-surface leading-tight flex items-center gap-1.5">
+            {company}
+            {attention.needsAttention && (
+              <span className="group/dot relative inline-flex shrink-0">
+                <span className="w-4 h-4 rounded-full bg-error inline-flex items-center justify-center" aria-hidden>
+                  <span className="text-[9px] font-black leading-none text-on-error">!</span>
                 </span>
-              </button>
-              {tooltipPanel}
-            </div>
+                <span id={`job-attn-${id}`} className="sr-only">{attention.tooltipText}</span>
+                <span
+                  className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full z-50 mt-1.5 w-max max-w-[min(260px,calc(100vw-3rem))] rounded-lg bg-surface-container-highest px-3 py-2 text-xs leading-snug text-on-surface shadow-[0_4px_16px_rgba(42,52,57,0.12)] ghost-border opacity-0 invisible transition-[opacity,visibility] duration-150 group-hover/dot:opacity-100 group-hover/dot:visible"
+                  aria-hidden
+                >
+                  {attention.tooltipText}
+                </span>
+              </span>
+            )}
+          </h4>
+          <p className="text-sm text-on-surface-variant font-medium">{role}</p>
+          {contactLabel && (
+            <p className="text-xs text-on-surface-variant/70 mt-0.5">{contactLabel}</p>
           )}
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {attention.needsAttention && (
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase text-on-surface-variant/70 hover:text-on-surface-variant transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded px-1 py-0.5"
+            aria-label="Mark as followed up"
+            aria-describedby={`job-attn-${id}`}
+            onClick={() => onMarkFollowedUp(id)}
+          >
+            <span className="material-symbols-outlined text-base" data-icon="done_all">done_all</span>
+            Mark as followed up
+          </button>
+        )}
         <span className={p.badge}>{status}</span>
         <div className="relative" ref={menuRef}>
           <button

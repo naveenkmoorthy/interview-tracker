@@ -10,6 +10,7 @@ type JobListProps = {
   statusFilter: StatusFilter
   sortOrder: SortOrder
   onUpdateStatus: (id: string, status: JobStatus) => void
+  onMarkFollowedUp: (id: string) => void
   onDelete: (id: string) => void
 }
 
@@ -21,7 +22,7 @@ function createdAtMs(iso: string | undefined): number {
 
 const STALENESS_TICK_MS = 60 * 60 * 1000
 
-export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onDelete }: JobListProps) {
+export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onMarkFollowedUp, onDelete }: JobListProps) {
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
@@ -88,8 +89,10 @@ export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onDelet
               status={job.status}
               createdAt={job.createdAt}
               updatedAt={job.updatedAt}
+              lastContactedAt={job.lastContactedAt}
               nowMs={nowMs}
               onUpdateStatus={onUpdateStatus}
+              onMarkFollowedUp={onMarkFollowedUp}
               onDelete={onDelete}
             />
           ))}

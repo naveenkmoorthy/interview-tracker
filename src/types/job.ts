@@ -16,4 +16,6 @@ export type Job = {
   createdAt: string
   /** Last activity: creation or status change. Omitted in legacy stored rows; treat as createdAt. */
   updatedAt?: string
+  /** When the user last followed up / contacted this company (ISO 8601). */
+  lastContactedAt?: string
 }
