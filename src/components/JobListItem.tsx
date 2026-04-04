@@ -46,10 +46,24 @@ export type JobListItemProps = {
   status: JobStatus
   createdAt: string
   updatedAt?: string
+  lastContactedAt?: string
   /** Wall-clock time for staleness; must change over time (see JobList). */
   nowMs: number
   onUpdateStatus: (id: string, status: JobStatus) => void
+  onMarkFollowedUp: (id: string) => void
   onDelete: (id: string) => void
+}
+
+const MS_PER_DAY = 86400000
+
+function relativeContactLabel(lastContactedAt: string | undefined, nowMs: number): string | null {
+  if (!lastContactedAt) return null
+  const ms = Date.parse(lastContactedAt)
+  if (!Number.isFinite(ms)) return null
+  const days = Math.floor((nowMs - ms) / MS_PER_DAY)
+  if (days <= 0) return 'Last contacted today'
+  if (days === 1) return 'Last contacted yesterday'
+  return `Last contacted ${days} days ago`
 }
 
 export function JobListItem({
@@ -59,8 +73,10 @@ export function JobListItem({
   status,
   createdAt,
   updatedAt,
+  lastContactedAt,
   nowMs,
   onUpdateStatus,
+  onMarkFollowedUp,
   onDelete,
 }: JobListItemProps) {
   const attention = getJobAttention(
@@ -71,9 +87,12 @@ export function JobListItem({
       status,
       createdAt,
       updatedAt,
+      lastContactedAt,
     },
     nowMs,
   )
+
+  const contactLabel = relativeContactLabel(lastContactedAt, nowMs)
 
   const p = statusPresentation[status]
   const [menuOpen, setMenuOpen] = useState(false)
@@ -125,20 +144,33 @@ export function JobListItem({
           <div className="min-w-0">
             <h4 className="font-semibold text-on-surface leading-tight">{company}</h4>
             <p className="text-sm text-on-surface-variant font-medium">{role}</p>
+            {contactLabel && (
+              <p className="text-xs text-on-surface-variant/70 mt-0.5">{contactLabel}</p>
+            )}
           </div>
           {attention.needsAttention && (
-            <div className="group/ico relative shrink-0 pt-0.5">
+            <div className="flex items-center gap-1 shrink-0 pt-0.5">
+              <div className="group/ico relative">
+                <button
+                  type="button"
+                  className="rounded p-0.5 text-amber-700 dark:text-amber-400 hover:bg-amber-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
+                  aria-label="Needs attention"
+                  aria-describedby={`job-attn-${id}`}
+                >
+                  <span className="material-symbols-outlined text-xl" data-icon="priority_high">
+                    priority_high
+                  </span>
+                </button>
+                {tooltipPanel}
+              </div>
               <button
                 type="button"
-                className="rounded p-0.5 text-amber-700 dark:text-amber-400 hover:bg-amber-500/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest"
-                aria-label="Needs attention"
-                aria-describedby={`job-attn-${id}`}
+                className="rounded-lg px-2 py-1 text-xs font-medium text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-container-lowest transition-colors"
+                aria-label="Mark as followed up"
+                onClick={() => onMarkFollowedUp(id)}
               >
-                <span className="material-symbols-outlined text-xl" data-icon="priority_high">
-                  priority_high
-                </span>
+                Followed up
               </button>
-              {tooltipPanel}
             </div>
           )}
         </div>

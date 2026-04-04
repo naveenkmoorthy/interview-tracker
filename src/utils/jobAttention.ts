@@ -8,10 +8,13 @@ const MS_PER_DAY = 86400000
 const ELIGIBLE_STATUSES: ReadonlySet<JobStatus> = new Set(['Applied', 'Interview'])
 
 function lastActivityMs(job: Job): number | null {
-  const iso = job.updatedAt ?? job.createdAt
-  if (typeof iso !== 'string' || iso.length === 0) return null
-  const t = Date.parse(iso)
-  return Number.isFinite(t) ? t : null
+  const candidates = [job.lastContactedAt, job.updatedAt, job.createdAt]
+  const timestamps = candidates
+    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+    .map(Date.parse)
+    .filter(Number.isFinite)
+  if (timestamps.length === 0) return null
+  return Math.max(...timestamps)
 }
 
 export type JobAttention = {

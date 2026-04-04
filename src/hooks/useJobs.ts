@@ -26,7 +26,15 @@ function normalizeJob(job: Job, index: number): Job {
     updatedAt = rawUpdated
   }
 
-  return { ...job, createdAt, updatedAt }
+  const rawContacted = job.lastContactedAt
+  const lastContactedAt =
+    typeof rawContacted === 'string' &&
+    rawContacted.length > 0 &&
+    Number.isFinite(Date.parse(rawContacted))
+      ? rawContacted
+      : undefined
+
+  return { ...job, createdAt, updatedAt, lastContactedAt }
 }
 
 function loadJobs(): Job[] {
@@ -82,9 +90,19 @@ export function useJobs() {
     [],
   )
 
+  const markFollowedUp = useCallback((id: string) => {
+    setJobs((prev) =>
+      prev.map((job) =>
+        job.id !== id
+          ? job
+          : { ...job, lastContactedAt: new Date().toISOString() },
+      ),
+    )
+  }, [])
+
   const deleteJob = useCallback((id: string) => {
     setJobs((prev) => prev.filter((job) => job.id !== id))
   }, [])
 
-  return { jobs, addJob, updateJobStatus, deleteJob }
+  return { jobs, addJob, updateJobStatus, markFollowedUp, deleteJob }
 }
