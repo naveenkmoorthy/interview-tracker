@@ -11,7 +11,7 @@ type StatusFilter = 'all' | JobStatus
 type SortOrder = 'newest' | 'oldest'
 
 function App() {
-  const { jobs, addJob, updateJobStatus, markFollowedUp, deleteJob } = useJobs()
+  const { jobs, addJob, updateJobStatus, markFollowedUp, deleteJob, updateJobNotes } = useJobs()
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest')
 
@@ -34,6 +34,7 @@ function App() {
           onUpdateStatus={updateJobStatus}
           onMarkFollowedUp={markFollowedUp}
           onDelete={deleteJob}
+          onUpdateNotes={updateJobNotes}
         />
       </main>
       <Footer />

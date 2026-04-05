@@ -12,6 +12,7 @@ type JobListProps = {
   onUpdateStatus: (id: string, status: JobStatus) => void
   onMarkFollowedUp: (id: string) => void
   onDelete: (id: string) => void
+  onUpdateNotes: (id: string, notes: string) => void
 }
 
 function createdAtMs(iso: string | undefined): number {
@@ -22,7 +23,15 @@ function createdAtMs(iso: string | undefined): number {
 
 const STALENESS_TICK_MS = 60 * 60 * 1000
 
-export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onMarkFollowedUp, onDelete }: JobListProps) {
+export function JobList({
+  jobs,
+  statusFilter,
+  sortOrder,
+  onUpdateStatus,
+  onMarkFollowedUp,
+  onDelete,
+  onUpdateNotes,
+}: JobListProps) {
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
@@ -90,10 +99,12 @@ export function JobList({ jobs, statusFilter, sortOrder, onUpdateStatus, onMarkF
               createdAt={job.createdAt}
               updatedAt={job.updatedAt}
               lastContactedAt={job.lastContactedAt}
+              notes={job.notes}
               nowMs={nowMs}
               onUpdateStatus={onUpdateStatus}
               onMarkFollowedUp={onMarkFollowedUp}
               onDelete={onDelete}
+              onUpdateNotes={onUpdateNotes}
             />
           ))}
         </div>

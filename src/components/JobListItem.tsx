@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { JOB_STATUSES, type JobStatus } from '../types/job'
 import { getJobAttention } from '../utils/jobAttention'
 import { ConfirmModal } from './ConfirmModal'
+import { NotesModal } from './NotesModal'
 
 const statusPresentation: Record<
   JobStatus,
@@ -47,11 +48,13 @@ export type JobListItemProps = {
   createdAt: string
   updatedAt?: string
   lastContactedAt?: string
+  notes?: string
   /** Wall-clock time for staleness; must change over time (see JobList). */
   nowMs: number
   onUpdateStatus: (id: string, status: JobStatus) => void
   onMarkFollowedUp: (id: string) => void
   onDelete: (id: string) => void
+  onUpdateNotes: (id: string, notes: string) => void
 }
 
 const MS_PER_DAY = 86400000
@@ -74,10 +77,12 @@ export function JobListItem({
   createdAt,
   updatedAt,
   lastContactedAt,
+  notes,
   nowMs,
   onUpdateStatus,
   onMarkFollowedUp,
   onDelete,
+  onUpdateNotes,
 }: JobListItemProps) {
   const attention = getJobAttention(
     {
@@ -97,6 +102,7 @@ export function JobListItem({
   const p = statusPresentation[status]
   const [menuOpen, setMenuOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -158,6 +164,17 @@ export function JobListItem({
           </button>
         )}
         <span className={p.badge}>{status}</span>
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold tracking-widest uppercase text-on-surface-variant/80 bg-surface-container hover:bg-surface-container-high transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          aria-label={`Notes for ${company}, ${role}`}
+          onClick={() => setNotesOpen(true)}
+        >
+          <span className="material-symbols-outlined text-base" data-icon="menu">
+            menu
+          </span>
+          NOTES
+        </button>
         <div className="relative" ref={menuRef}>
           <button
             type="button"
@@ -216,6 +233,17 @@ export function JobListItem({
           )}
         </div>
       </div>
+      {notesOpen && (
+        <NotesModal
+          key={id}
+          jobId={id}
+          company={company}
+          role={role}
+          initialNotes={notes ?? ''}
+          onNotesChange={onUpdateNotes}
+          onClose={() => setNotesOpen(false)}
+        />
+      )}
       {confirmOpen && (
         <ConfirmModal
           title="Delete application?"
