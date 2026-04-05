@@ -18,4 +18,6 @@ export type Job = {
   updatedAt?: string
   /** When the user last followed up / contacted this company (ISO 8601). */
   lastContactedAt?: string
+  /** Plain-text notes for this application. */
+  notes?: string
 }

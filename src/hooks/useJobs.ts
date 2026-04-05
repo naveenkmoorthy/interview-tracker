@@ -34,7 +34,13 @@ function normalizeJob(job: Job, index: number): Job {
       ? rawContacted
       : undefined
 
-  return { ...job, createdAt, updatedAt, lastContactedAt }
+  const rawNotes = job.notes
+  const { notes: _jobNotes, ...jobRest } = job
+  const base: Job = { ...jobRest, createdAt, updatedAt, lastContactedAt }
+  if (typeof rawNotes === 'string' && rawNotes.length > 0) {
+    return { ...base, notes: rawNotes }
+  }
+  return base
 }
 
 function loadJobs(): Job[] {
@@ -104,5 +110,19 @@ export function useJobs() {
     setJobs((prev) => prev.filter((job) => job.id !== id))
   }, [])
 
-  return { jobs, addJob, updateJobStatus, markFollowedUp, deleteJob }
+  const updateJobNotes = useCallback((id: string, notes: string) => {
+    setJobs((prev) =>
+      prev.map((job) => {
+        if (job.id !== id) return job
+        const trimmed = notes
+        if (trimmed.length === 0) {
+          const { notes: _n, ...rest } = job
+          return rest
+        }
+        return { ...job, notes: trimmed }
+      }),
+    )
+  }, [])
+
+  return { jobs, addJob, updateJobStatus, markFollowedUp, deleteJob, updateJobNotes }
 }
