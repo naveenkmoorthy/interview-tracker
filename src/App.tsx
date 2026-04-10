@@ -20,13 +20,13 @@ function App() {
       <Header />
       <main className="grow w-full max-w-4xl mx-auto px-6 py-12">
         <AddJobForm onAdd={addJob} />
-        <StatsBar
+        {jobs.length > 0 && <StatsBar
           jobs={jobs}
           activeFilter={statusFilter}
           onFilterChange={setStatusFilter}
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
-        />
+        />}
         <JobList
           jobs={jobs}
           statusFilter={statusFilter}

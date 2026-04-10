@@ -57,6 +57,7 @@ export function StatsBar({ jobs, activeFilter, onFilterChange, sortOrder, onSort
         <button
           type="button"
           onClick={() => toggle('all')}
+          aria-pressed={isAllActive}
           className={`flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container transition-all ${
             isAllActive
               ? 'ring-2 ring-primary shadow-sm'
@@ -78,6 +79,7 @@ export function StatsBar({ jobs, activeFilter, onFilterChange, sortOrder, onSort
               type="button"
               key={status}
               onClick={() => toggle(status)}
+              aria-pressed={isActive}
               className={`flex items-center gap-2 px-4 py-2 rounded-full ${s.bg} transition-all ${
                 isActive
                   ? 'ring-2 ring-primary shadow-sm'
@@ -96,7 +98,7 @@ export function StatsBar({ jobs, activeFilter, onFilterChange, sortOrder, onSort
         <button
           type="button"
           onClick={() => onSortChange(sortOrder === 'newest' ? 'oldest' : 'newest')}
-          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container transition-all ring-2 ring-primary shadow-sm"
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container transition-all opacity-60 hover:opacity-90"
         >
           <span
             className="material-symbols-outlined text-base text-on-surface-variant"

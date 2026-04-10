@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { ModalShell } from './ModalShell'
 
 type ConfirmModalProps = {
@@ -15,15 +16,16 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const titleId = useId()
   return (
-    <ModalShell onClose={onCancel}>
+    <ModalShell onClose={onCancel} ariaLabelledBy={titleId}>
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-error-container/20 flex items-center justify-center">
           <span className="material-symbols-outlined text-error text-xl" data-icon="warning">
             warning
           </span>
         </div>
-        <h3 className="text-base font-semibold text-on-surface">{title}</h3>
+        <h3 id={titleId} className="text-base font-semibold text-on-surface">{title}</h3>
       </div>
       <p className="text-sm text-on-surface-variant mb-6">{description}</p>
       <div className="flex justify-end gap-3">

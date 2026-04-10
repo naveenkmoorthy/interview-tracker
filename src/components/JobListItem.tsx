@@ -112,13 +112,23 @@ export function JobListItem({
         setMenuOpen(false)
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setMenuOpen(false)
+      }
+    }
     document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('keydown', handleKey, true)
+    return () => {
+      document.removeEventListener('mousedown', handleClick)
+      document.removeEventListener('keydown', handleKey, true)
+    }
   }, [menuOpen])
 
   return (
     <div
-      className="group/row relative bg-surface-container-lowest p-6 rounded-xl ghost-border flex items-center justify-between transition-all hover:bg-surface-container-low"
+      className="group/row relative bg-surface-container-lowest p-6 rounded-xl ghost-border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:bg-surface-container-low"
     >
       <div className="flex items-center gap-6 min-w-0">
         <div className={p.iconWrap}>
@@ -150,7 +160,7 @@ export function JobListItem({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         {attention.needsAttention && (
           <button
             type="button"
@@ -180,6 +190,9 @@ export function JobListItem({
             type="button"
             className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors"
             onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Actions"
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
           >
             <span className="material-symbols-outlined text-xl" data-icon="more_vert">
               more_vert
@@ -187,7 +200,7 @@ export function JobListItem({
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-surface-container-lowest/90 backdrop-blur-[20px] rounded-xl ghost-border shadow-[0_1px_2px_rgba(42,52,57,0.04),0_4px_12px_rgba(42,52,57,0.08)] py-1">
+            <div role="menu" className="absolute right-0 top-full mt-1 z-50 w-48 bg-surface-container-lowest/90 backdrop-blur-[20px] rounded-xl ghost-border shadow-[0_1px_2px_rgba(42,52,57,0.04),0_4px_12px_rgba(42,52,57,0.08)] py-1">
               <div className="px-3 py-2">
                 <span className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">
                   Move to
@@ -197,6 +210,7 @@ export function JobListItem({
                 <button
                   key={s}
                   type="button"
+                  role="menuitem"
                   className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-2"
                   onClick={() => {
                     onUpdateStatus(id, s)
@@ -215,6 +229,7 @@ export function JobListItem({
               <div className="border-t border-outline-variant/15 my-1" />
               <button
                 type="button"
+                role="menuitem"
                 className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container/10 transition-colors flex items-center gap-2"
                 onClick={() => {
                   setConfirmOpen(true)

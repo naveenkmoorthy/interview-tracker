@@ -64,7 +64,7 @@ export function NotesModal({
   }, [jobId, text, initialNotes, onNotesChange, onClose])
 
   return (
-    <ModalShell onClose={flushAndClose} maxWidthClass="max-w-md">
+    <ModalShell onClose={flushAndClose} maxWidthClass="max-w-md" ariaLabelledBy={`notes-title-${jobId}`}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center shrink-0">
@@ -73,7 +73,7 @@ export function NotesModal({
             </span>
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-on-surface">Notes</h3>
+            <h3 id={`notes-title-${jobId}`} className="text-base font-semibold text-on-surface">Notes</h3>
             <p className="text-xs text-on-surface-variant truncate" title={`${company} — ${role}`}>
               {company} — {role}
             </p>

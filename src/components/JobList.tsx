@@ -74,6 +74,9 @@ export function JobList({
           <p className="text-on-surface-variant text-sm font-medium">
             No entries yet &mdash; add your first application above.
           </p>
+          <p className="text-on-surface-variant/50 text-xs mt-1">
+            Track companies, roles, and interview progress all in one place.
+          </p>
         </div>
       ) : displayJobs.length === 0 ? (
         <div className="py-16 text-center border-2 border-dashed border-outline-variant/15 rounded-xl">
