@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react'
 
 type ModalShellProps = {
   children: ReactNode
@@ -14,6 +14,10 @@ const FOCUSABLE =
 export function ModalShell({ children, onClose, maxWidthClass = 'max-w-sm', ariaLabelledBy }: ModalShellProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const previousFocus = useRef<Element | null>(null)
+  const onCloseRef = useRef(onClose)
+  useLayoutEffect(() => {
+    onCloseRef.current = onClose
+  })
 
   useEffect(() => {
     previousFocus.current = document.activeElement
@@ -23,7 +27,7 @@ export function ModalShell({ children, onClose, maxWidthClass = 'max-w-sm', aria
 
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
 
@@ -48,7 +52,7 @@ export function ModalShell({ children, onClose, maxWidthClass = 'max-w-sm', aria
       document.body.style.overflow = prev;
       (previousFocus.current as HTMLElement | null)?.focus()
     }
-  }, [onClose])
+  }, [])
 
   return (
     <div
